@@ -1,66 +1,103 @@
-## 1. Project Overview
-This repository contains a single-activity Android application designed to track an incremental integer state. The project serves as a technical baseline to evaluate layout rendering via constraint hierarchies, synchronous view binding, and primitive memory management within the standard Android Activity lifecycle.
+# Architectural Optimization & Refactoring Ledger (v2.0 Update)
 
-## 2. Technical Specifications & Environment
-* **Development Environment:** Android Studio
-* **Core Language:** Java (JDK 17 / Java 8 compliance)
-* **User Interface:** Layout Serialization via XML (`ConstraintLayout`)
-* **Minimum SDK API Level:** 24 (Android 7.0)
-* **Target SDK API Level:** 34 (Android 14)
+This document charts the explicit modifications, structural updates, and lifecycle optimizations applied to the codebase to transition the application from the volatile v1.0 prototype to a stable, production-ready engineering baseline.
 
-## 3. UI Component Breakdown & Attribute Mapping
+---
 
-The user interface utilizes a flat layout hierarchy managed by `ConstraintLayout` to maximize layout performance. Visual elements are assigned explicit resource identifiers and geometric constraints.
+## 🚀 Architectural Refactoring & Milestones
 
-| Component ID | UI Element | Attributes / Specifications | Functional Purpose |
-| :--- | :--- | :--- | :--- |
-| `textView` | `TextView` | Width: `wrap_content`, Height: `wrap_content`, Text Size: `60sp`, Text Color: `#504949`, Background: `#4CAF50` | Application Title Header |
-| `Count` | `TextView` | Width: `wrap_content`, Height: `wrap_content`, Text Size: `70sp`, Text Color: `#EBDBDB`, Gravity: `center` | Output display for the runtime state integer |
-| `CountBtn` | `Button` | Width: `194dp`, Height: `137dp`, Text Size: `40sp`, Background Tint: `#4CABDC` | Triggers the mutation listener to increment state |
-| `ResetBtn` | `Button` | Width: `139dp`, Height: `87dp`, Text Size: `30sp`, Background Tint: `#DB5F5F` | Triggers the mutation listener to clear state |
-
-## 4. Architectural Implementation Baseline (v1.0)
-
-### 4.1 Memory Allocation & Data Scoping
-The primitive state tracking is declared as an instance variable within the class scope, initialized to zero.
-
-```java 
-int count = 0;
-```
- 
-### 4.2 Localized View Binding
-UI components are instantiated locally within the execution block of the onCreate(Bundle savedInstanceState) lifecycle callback method using sequential findViewById mapping:
+### 1. Lifecycle State Persistence (Resolving Runtime Data Loss)
+* **Vulnerability Fixed:** In v1.0, the counter integer `count` relied entirely on the volatile memory of the active `MainActivity` instance. Standard runtime configuration changes (such as device screen rotation) caused the OS to destroy and recreate the Activity, triggering an asynchronous reset of the counter back to `0`.
+* **Engineering Solution:** Implemented native serialization protocols by overriding the `onSaveInstanceState(Bundle)` lifecycle callback. The runtime integer state is now securely pushed into a key-value bundle array mapping right before destruction. During re-instantiation, `onCreate()` intercepts the bundle pointer to restore the exact historical state value.
 
 ```java
-Button CountBtn = findViewById(R.id.CountBtn);
-TextView Count = findViewById(R.id.Count);
-Button ResetBtn = findViewById(R.id.ResetBtn);
+// Intercepting layout destruction to serialize volatile state data
+@Override
+protected void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putInt(KEY_COUNT, count);
+}
 ```
-### 4.3 Synchronous Event Handling
-Mutation of the runtime integer state is handled via anonymous internal implementations of View.OnClickListener. State output updates are pushed directly to the UI layer using default implicit string concatenation type coercion ("" + count).
+### 2. Object Scoping Transformation
+* **Vulnerability Fixed:** View widget elements (CountBtn, ResetBtn, Count) were tightly bound as local variables inside the execution block of onCreate(), preventing modular encapsulation or reference extension across helper classes and lifecycle sub-routines.
 
+* **Engineering Solution:** Migrated all component declarations to private class-level reference fields, establishing strict object-oriented structure and ensuring clean access control across the entire class scope.
+
+### 3. Layout Geometry & String Parsing Optimizations
+* **Boundary Clipping Rectified:** Transitioned the Count display container width and height elements from static hardcoded densities (173dp / 122dp) to dynamic scaling parameters (wrap_content). This eliminates the risk of text truncation or layout clipping when a user scales up their system font settings for accessibility.
+
+* **Explicit Type Safety:** Abolished legacy implicit string concatenation shortcuts ("" + count) within the UI update logic. The app now handles data rendering through explicit, type-safe type parsing via String.valueOf(int).
+
+## 💻 Optimized Production Source Code (v2.0)
 ```java
-CountBtn.setOnClickListener(new View.OnClickListener() {
+package com.example.my1hourapp;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
+public class MainActivity extends AppCompatActivity {
+    
+    // Class-Level Primitive State Fields
+    private int count = 0;
+    private static final String KEY_COUNT = "saved_counter_integer";
+    
+    // Class-Level UI Field Pointers (Encapsulated Object Scoping)
+    private Button countBtn;
+    private Button resetBtn;
+    private TextView countTextView;
+    
     @Override
-    public void onClick(View v) {
-        count++;
-        Count.setText("" + count);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_main);
+       
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+        
+        // Synchronous View Binding
+        countBtn = findViewById(R.id.CountBtn);
+        countTextView = findViewById(R.id.Count);
+        resetBtn = findViewById(R.id.ResetBtn);
+        
+        // Lifecycle Serialization Restoration
+        if (savedInstanceState != null) {
+            count = savedInstanceState.getInt(KEY_COUNT, 0);
+            countTextView.setText(String.valueOf(count));
+        }
+        
+        // Interface Mutation Event Listeners
+        countBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                count++;
+                countTextView.setText(String.valueOf(count));
+            }
+        });
+        
+        resetBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                count = 0;
+                countTextView.setText(String.valueOf(count));
+            }
+        });
     }
-});
+    
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(KEY_COUNT, count);
+    }
+}
 ```
-
-## 5. Architectural Limitations & Configuration Vulnerabilities
-Analysis of the v1.0 compiled artifact reveals two critical architectural vulnerabilities that deviate from production-grade engineering standards:
-
-* Volatile Runtime State Data Loss (Configuration Changes): The state tracking variable count relies entirely on the lifecycle of the immediate MainActivity instance. When a device runtime configuration change occurs (specifically a hardware orientation rotation between portrait and landscape modes), the Android OS completely destroys and recreates the host Activity. Because state preservation protocols are omitted in this build, memory registers reset, resulting in total data loss (the counter resets asynchronously to 0).
-
-* Deficient Variable Scoping: Interface components (CountBtn, ResetBtn, Count) are tightly scoped as local variables inside onCreate(). This prevents modular expansion or reference manipulation across external validation or lifecycle helper methods.
-
-## 6. Optimization Roadmap
-This baseline artifact will undergo a planned code refactoring (v2.0) to achieve architectural compliance:
-
-* Implementation of Serialization Layer: Integration of onSaveInstanceState(Bundle) and onRestoreInstanceState(Bundle) callback overrides to map the primitive count integer to a key-value bundle array to ensure persistence across state destruction.
-
-* Refactoring of Class Member Scopes: UI component pointers will be migrated to private class-level members to enforce object-oriented scoping protocols.
-
-* Type Parsing Optimization: Transition from primitive string concatenation type casting to explicit serialization via String.valueOf(int).
