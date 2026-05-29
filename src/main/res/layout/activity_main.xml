@@ -12,6 +12,7 @@
         android:id="@+id/CountBtn"
         android:layout_width="194dp"
         android:layout_height="137dp"
+        android:layout_marginTop="63dp"
         android:layout_marginBottom="18dp"
         android:backgroundTint="#4CABDC"
         android:text="Count"
@@ -20,7 +21,8 @@
         app:layout_constraintBottom_toTopOf="@+id/ResetBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Count" />
 
     <TextView
         android:id="@+id/textView"
@@ -28,6 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="54dp"
         android:background="#4CAF50"
+        android:gravity="center"
         android:text="Counter App"
         android:textColor="#504949"
         android:textSize="60sp"
@@ -51,16 +54,17 @@
 
     <TextView
         android:id="@+id/Count"
-        android:layout_width="173dp"
-        android:layout_height="122dp"
-        android:layout_marginTop="56dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:gravity="center"
         android:text="0"
         android:textColor="#EBDBDB"
-        android:textSize="70sp"
+        android:textSize="80sp"
+        app:layout_constraintBottom_toTopOf="@+id/CountBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:layout_constraintVertical_bias="0.5" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
