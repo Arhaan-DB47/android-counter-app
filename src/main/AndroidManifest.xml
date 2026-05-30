@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.My1HourApp">
         <activity
+            android:name=".UserInfo"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

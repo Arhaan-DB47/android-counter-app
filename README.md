@@ -1,44 +1,31 @@
-# Android User Info Page (Layout Basics)
+# Android User Info Form App (v2.0)
 
-A simple, clean Android XML layout designed to collect and display user information. This project serves as a practical implementation of fundamental Android UI layout principles.
-
-## Learning Objectives
-
-This repository demonstrates a foundational understanding of:
-- **Nested Layouts:** Structuring a UI using a parent `LinearLayout` with child layout components.
-- **Orientation Control:** Utilizing both `vertical` and `horizontal` linear arrangements.
-- **Spacing Mechanics:** Implementing `android:layout_margin` for outer element separation and `android:padding` for internal spacing.
-- **Attributes:** Working with `layout_weight`, dimensions (`dp`), and text sizes (`sp`).
+An interactive, responsive Android application designed to collect, validate, and process user profile data. This project has been upgraded from a static layout playground into a fully functional, production-ready mobile interface.
 
 ---
 
-## 🛠️ UI Features & Structure
+## 🆙 What's New in Version 2.0
 
-The screen is built entirely using a vertical `LinearLayout` containing three distinct layout zones:
+We completely overhauled the app's structural layout code and introduced a robust backend logic engine to bring the interface to life.
 
-### 1. Header Bar (`Horizontal` LinearLayout)
-- **Background:** Vibrant red color wrapper (`#E24141`).
-- **Elements:** Features a star `ImageView` paired with a bold, 50sp "User Info" title `TextView`. Both share an even weight distribution (`layout_weight="1"`).
+### 🛠️ 1. XML Layout Optimizations
+- **From Text to Hints:** Swapped out disruptive `android:text` properties for **`android:hint`** placeholders. Users no longer have to delete default text manually before typing.
+- **Performance-Driven Layout Weights:** Fixed horizontal rendering constraints by setting `android:layout_width="0dp"` on proportional header elements, forcing Android to calculate screen space smoothly.
+- **Alignment Refinements:** Added `android:gravity="center_vertical"` to the header bar to keep the star icon and title text perfectly balanced along a uniform horizontal axis.
 
-### 2. Form Inputs (`Vertical` LinearLayout)
-- Isolated from screen edges via a `10dp` external margin and wrapped in a `10dp` internal padding to buffer inputs cleanly.
-- Consists of 4 distinct `EditText` field components:
-    - Name
-    - Phone No.
-    - Email
-    - Department
-- Each field is separated using a `12dp` top margin for a clean, non-cluttered reading experience.
-
-### 3. Action Button
-- A full-width `Button` wrapped with a green background accent (`#4CAF50`).
-- Styled with consistent margins and padding to ensure a prominent hit target.
+### ☕ 2. Backend Java Integration
+- **Dynamic Field Mapping:** Connected the XML visual interface directly to Java logic using clean view binding via **`findViewById`**.
+- **Sequential Input Validation:** Programmed an interactive verification engine that scans input fields upon submission. Missing inputs are caught instantly using focused **`.setError()`** warnings and cursor requests.
+- **Action Feedbacks:** Integrated native Android **`Toast`** popup banners to provide immediate feedback to the user when a profile saves successfully.
 
 ---
 
-## 📐 Margins vs Paddings: Key Takeaway
+## 📐 Application Architecture & Layout
 
-A core focus of this project was mastering the distinction between spacing types:
-- **Margin:** Controls the space *outside* the boundary of an element (e.g., pushing the input fields away from the screen edge).
-- **Padding:** Controls the space *inside* the element (e.g., buffering text away from its own borders).
+The user interface utilizes a vertical `LinearLayout` containing three modular layout components structured as follows:
 
----
+```text
+[ Root Vertical LinearLayout ]
+   ├── Header Layout (Horizontal)  ⟶  ImageView (Star) + Title TextView ("User Info")
+   ├── Form Container (Vertical)    ⟶  4 x Custom Data Inputs (Name, Phone, Email, Dept)
+   └── Interactive Action Button    ⟶  "Save User Info" Trigger
