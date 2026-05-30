@@ -1,12 +1,12 @@
 # Android User Info Form App (v2.0)
 
-An interactive, responsive Android application designed to collect, validate, and process user profile data. This project has been upgraded from a static layout playground into a fully functional, production-ready mobile interface.
+An basic Android application designed to collect and validate user profile data. This project has been upgraded from a static layout playground into a functional mobile interface.
 
 ---
 
 ## 🆙 What's New in Version 2.0
 
-We completely overhauled the app's structural layout code and introduced a robust backend logic engine to bring the interface to life.
+We overhauled the app's structural layout code and introduced a robust backend logic engine to bring the interface to life.
 
 ### 🛠️ 1. XML Layout Optimizations
 - **From Text to Hints:** Swapped out disruptive `android:text` properties for **`android:hint`** placeholders. Users no longer have to delete default text manually before typing.
